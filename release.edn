@@ -1,3 +1,3 @@
 {:group-id "mhuebert"
- :artifact-id "deps-lib"
- :scm-url "https://github.com/mhuebert/deps-lib"}
+ :artifact-id "deps-library"
+ :scm-url "https://github.com/mhuebert/deps-library"}

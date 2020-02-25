@@ -1,17 +1,17 @@
-# deps-lib
+# deps-library
 
-![Version Badge](https://img.shields.io/clojars/v/mhuebert/deps-lib)
+![Version Badge](https://img.shields.io/clojars/v/mhuebert/deps-library)
 
 ----
 
-To share a small versioned Clojure library on Clojars should be a simple thing.
+To publish a small Clojure library to Clojars should be a simple thing.
 
 As a library author, my needs are simple:
 
 1. Bump the version when ready for a release
 2. Ship the code to Clojars
 
-With `deps-lib` this is possible using just one small config file. From that we
+With `deps-library` this is possible using just one small config file. From that we
 create a `pom.xml` (using [garamond](https://github.com/workframers/garamond))
 and skinny jar (using [depstar](https://github.com/seancorfield/depstar)), and
 deploy to clojars (using [deps-deploy](https://github.com/slipset/deps-deploy)).
@@ -24,8 +24,8 @@ Create a `release.edn` file in your project root, eg:
 
 ```clj
 {:group-id "mhuebert"
- :artifact-id "deps-lib"
- :scm-url "https://github.com/mhuebert/deps-lib"}
+ :artifact-id "deps-library"
+ :scm-url "https://github.com/mhuebert/deps-library"}
 ```
 
 Add a `:release` alias to your `deps.edn` as follows:
@@ -33,8 +33,8 @@ Add a `:release` alias to your `deps.edn` as follows:
 ```clj
 :aliases
  {:release
-  {:extra-deps {mhuebert/deps-lib {:mvn/version "0.1.4"}}
-   :main-opts ["-m" "deps-lib.release"]}}
+  {:extra-deps {mhuebert/deps-library {:mvn/version "0.1.4"}}
+   :main-opts ["-m" "deps-library.release"]}}
 ```
 
 Create an initial version tag (if you haven't already)

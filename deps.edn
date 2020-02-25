@@ -4,4 +4,4 @@
         deps-deploy {:mvn/version "0.0.9"}}
  :aliases
  {:release
-  {:main-opts ["-m" "deps-lib.release"]}}}
+  {:main-opts ["-m" "deps-library.release"]}}}

@@ -1,4 +1,4 @@
-(ns deps-lib.release
+(ns deps-library.release
   (:require [clojure.edn :as edn]
             [clojure.java.io :as io]
             [clojure.java.shell :as sh]
