@@ -11,7 +11,10 @@
 
 (def default-opts
   {:jar-dir "target"
-   :jar-name "project.jar"})
+   :jar-name "project.jar"
+   :repository {"clojars" {:url "https://clojars.org/repo"
+                           :username (System/getenv "CLOJARS_USERNAME")
+                           :password (System/getenv "CLOJARS_PASSWORD")}}})
 
 (defn garamond-args [{:keys [group-id
                              artifact-id
