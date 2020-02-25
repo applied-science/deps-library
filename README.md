@@ -28,7 +28,7 @@ To bump versions:
 clj -A:release tag <patch, minor, major>
 ```
 
-To deploy:
+To deploy: (requires `CLOJARS_USERNAME` and `CLOJARS_PASSWORD` environment variables set)
 ```
 clj -A:release
 ```
