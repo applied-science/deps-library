@@ -7,7 +7,7 @@
             [garamond.git :as git]
             [garamond.pom :as pom]
             [taoensso.timbre :as timbre]
-            [mach.pack.alpha.skinny :as skinny]))
+            [hf.depstar.jar :as jar]))
 
 (def default-opts
   {:jar-dir "target"
@@ -25,7 +25,8 @@
 
 (defn jar [{:keys [jar-dir
                    jar-name]} & args]
-  (apply skinny/-main (concat args ["--no-libs" "--project-path" (str jar-dir "/" jar-name)])))
+  (jar/-main (str jar-dir "/" jar-name))
+  #_(apply skinny/-main (concat args ["--no-libs" "--project-path" (str jar-dir "/" jar-name)])))
 
 (defn pom [opts & args]
   (apply garamond/-main (concat (garamond-args opts) ["--pom"] args)))
