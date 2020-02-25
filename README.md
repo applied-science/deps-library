@@ -15,7 +15,7 @@ Add a `:release` alias to your `deps.edn` as follows:
 ```clj
 :aliases
  {:release
-  {:extra-deps {mhuebert/deps-lib {:local/root "../deps-lib"}}
+  {:extra-deps {mhuebert/deps-lib {:mvn/version "0.1.4"}}
    :main-opts ["-m" "deps-lib.release"]}}
 ```
 
