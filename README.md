@@ -34,3 +34,7 @@ To deploy: (requires `CLOJARS_USERNAME` and `CLOJARS_PASSWORD` environment varia
 ```
 clj -A:release
 ```
+
+This will create a skinny jar using [depstar](https://github.com/seancorfield/depstar),
+set up your `pom.xml` using [garamond](https://github.com/workframers/garamond),
+and deploy to clojars using [deps-deploy](https://github.com/slipset/deps-deploy).
