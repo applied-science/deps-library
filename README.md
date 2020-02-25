@@ -6,10 +6,15 @@
 
 To share a small versioned Clojure library on Clojars should be a simple thing.
 
-This library requires just one small config file, and we take care of creating
-the necessary `pom.xml` (using [garamond](https://github.com/workframers/garamond)) and
-skinny jar (using [depstar](https://github.com/seancorfield/depstar)), which are then
-deployed to clojars (using [deps-deploy](https://github.com/slipset/deps-deploy)).
+As a library author, my needs are simple:
+
+1. Bump the version when ready for a release
+2. Ship the code to Clojars
+
+With `deps-lib` this is possible using just one small config file. From that we
+create a `pom.xml` (using [garamond](https://github.com/workframers/garamond))
+and skinny jar (using [depstar](https://github.com/seancorfield/depstar)), and
+deploy to clojars (using [deps-deploy](https://github.com/slipset/deps-deploy)).
 
 This library is deployed using itself.
 
