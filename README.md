@@ -1,5 +1,7 @@
 # deps-lib
 
+![Version Badge](https://img.shields.io/clojars/v/mhuebert/deps-lib)
+
 Create a `release.edn` file in your project root, eg:
 
 ```clj
