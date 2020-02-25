@@ -2,6 +2,19 @@
 
 ![Version Badge](https://img.shields.io/clojars/v/mhuebert/deps-lib)
 
+----
+
+To share a small versioned Clojure library on Clojars should be a simple thing.
+
+This library requires just one small config file, and we take care of creating
+the necessary `pom.xml` (using [garamond](https://github.com/workframers/garamond)) and
+skinny jar (using [depstar](https://github.com/seancorfield/depstar)), which are then
+deployed to clojars (using [deps-deploy](https://github.com/slipset/deps-deploy)).
+
+This library is deployed using itself.
+
+## Usage
+
 Create a `release.edn` file in your project root, eg:
 
 ```clj
@@ -35,6 +48,3 @@ To deploy: (requires `CLOJARS_USERNAME` and `CLOJARS_PASSWORD` environment varia
 clj -A:release
 ```
 
-This will create a skinny jar using [depstar](https://github.com/seancorfield/depstar),
-set up your `pom.xml` using [garamond](https://github.com/workframers/garamond),
-and deploy to clojars using [deps-deploy](https://github.com/slipset/deps-deploy).
