@@ -59,13 +59,13 @@ clj -A:release patch # patch, minor, or major
 
 That's it.
 
-To only release the current version (pom + jar + deploy):
+To release the current version (pom + jar + deploy):
 
 ```sh
 clj -A:release
 ```
 
-To only tag a new version:
+To just tag a new version:
 
 ```sh
 clj -A:release tag patch # patch, minor, or major
