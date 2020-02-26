@@ -6,6 +6,8 @@
             [garamond.main :as garamond]
             [garamond.git :as git]
             [garamond.pom :as pom]
+            [garamond.version :as v]
+            [garamond.util :refer [exit]]
             [taoensso.timbre :as timbre]
             [hf.depstar.uberjar :as uberjar]))
 
@@ -26,10 +28,25 @@
    "--artifact-id" artifact-id
    "--scm-url" scm-url])
 
-(defn tag [opts & args]
-  (apply garamond/-main (concat (garamond-args opts)
-                                (:garamond-tag-args opts)
-                                ["--tag"] args)))
+(defn tag [args]
+  (let [{:keys [incr-type options exit-message ok?]} (garamond/validate-args args)
+        status (git/current-status)
+        opts (assoc options :prefix (or (:prefix options) (:prefix status) "v"))
+        new-version (cond-> (:version status)
+                            incr-type (v/increment incr-type))]
+
+    (cond exit-message
+          (exit (if ok? 0 1) exit-message)
+
+          (and (:tag opts) (-> status :git :dirty?))
+          (exit 1 "Current repository is dirty, will not create a tag. Please commit your changes and retry."))
+
+    (git/tag! new-version opts status)
+
+    (timbre/infof "Created new git tag %s from %s increment of %s"
+                  (str (:prefix opts) new-version)
+                  (name incr-type)
+                  (:current status))))
 
 (defn -main [& [command & args]]
   (let [opts (-> (io/file "release.edn")
@@ -43,7 +60,11 @@
                                 (:depstar/uber-main opts []))
         deploy #(deps-deploy/-main "deploy" (:jar/path opts))]
     (case command
-      "tag" (apply tag opts (or (seq args) ["patch"]))
+      ("patch"
+        "minor"
+        "major") (do (tag (conj (garamond-args opts) "patch"))
+                     (-main "build-deploy"))
+      "tag" (tag (conj (garamond-args opts) (or (first args) "patch")))
       "build-deploy" (do
                        (timbre/set-level! :warn)
                        (pom)
