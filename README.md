@@ -37,19 +37,35 @@ Add a `:release` alias to your `deps.edn` as follows:
    :main-opts ["-m" "deps-library.release"]}}
 ```
 
+Make sure `CLOJARS_USERNAME` and `CLOJARS_PASSWORD` environment variables are set.
+For example, add the following to your `~/.bashrc` or `~/.zshrc` or equivalent:
+
+```bash
+export CLOJARS_USERNAME="XYZ"
+export CLOJARS_PASSWORD="XYZ"
+```
+
 Create an initial version tag (if you haven't already)
 
 ```
 git tag v0.1.0
 ```
 
-To bump versions:
+Release a new version (tag + deploy):
 ```
-clj -A:release tag <patch, minor, major>
+clj -A:release <patch, minor, major>
 ```
 
-To deploy: (requires `CLOJARS_USERNAME` and `CLOJARS_PASSWORD` environment variables set)
+That's it.
+
+To only deploy the current version:
+
 ```
 clj -A:release
 ```
 
+To only tag a new version:
+
+```
+clj -A:release tag <patch, minor, major>
+```
