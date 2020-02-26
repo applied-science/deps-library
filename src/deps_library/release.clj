@@ -63,15 +63,15 @@
       ("patch"
         "minor"
         "major") (do (tag (conj (garamond-args opts) "patch"))
-                     (-main "build-deploy"))
+                     (-main "release"))
       "tag" (tag (conj (garamond-args opts) (or (first args) "patch")))
-      "build-deploy" (do
-                       (timbre/set-level! :warn)
-                       (pom)
-                       (jar)
-                       (deploy))
+      "release" (do
+                  (timbre/set-level! :warn)
+                  (pom)
+                  (jar)
+                  (deploy))
       "pom" (pom)
       "jar" (jar)
       "deploy" (deploy)
-      nil (-main "build-deploy"))
+      nil (-main "release"))
     (System/exit 0)))

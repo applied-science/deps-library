@@ -51,7 +51,7 @@ Create an initial version tag (if you haven't already)
 git tag v0.1.0
 ```
 
-Release a new version (tag + deploy):
+Release a new version (tag + pom + jar + deploy):
 
 ```sh
 clj -A:release patch # patch, minor, or major
@@ -59,7 +59,7 @@ clj -A:release patch # patch, minor, or major
 
 That's it.
 
-To only deploy the current version:
+To only release the current version (pom + jar + deploy):
 
 ```sh
 clj -A:release
@@ -70,3 +70,16 @@ To only tag a new version:
 ```sh
 clj -A:release tag patch # patch, minor, or major
 ```
+
+## Rationale
+
+In my experience, [tools.deps](https://github.com/clojure/tools.deps.alpha) has been a big step
+forward for Clojure dependency handling. In particular, "git deps" make it easy to consume small
+libraries without any extra effort. However, for production code we often want to depend only on
+pinned versions that are stored on reliable, public, immutable repositories like Clojars
+rather than rely on GitHub repositories, which are more easily moved/deleted.
+
+There are four distinct steps in the release process (tag, pom, jar, deploy). In isolation, each step
+is already adequately covered by a number of different tools. However, tying them all together is
+enough of a pain (~one page of code, understanding & configuring each tool) that it discourages versioned
+releases of small libraries. `deps-library` should make the process relatively painless.
