@@ -13,7 +13,7 @@ As a library author, my needs are simple:
 
 With `deps-library` this is possible using just one small config file. From that we
 create a `pom.xml` (using [garamond](https://github.com/workframers/garamond))
-and skinny jar (using [depstar](https://github.com/seancorfield/depstar)), and
+and thin jar (using [depstar](https://github.com/seancorfield/depstar)), and
 deploy to clojars (using [deps-deploy](https://github.com/slipset/deps-deploy)).
 
 This library is deployed using itself.
@@ -33,7 +33,7 @@ Add a `:release` alias to your `deps.edn` as follows:
 ```clj
 :aliases
  {:release
-  {:extra-deps {mhuebert/deps-library {:mvn/version "0.1.4"}}
+  {:extra-deps {mhuebert/deps-library {:mvn/version "VERSION"}}
    :main-opts ["-m" "deps-library.release"]}}
 ```
 

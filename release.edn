@@ -1,3 +1,7 @@
 {:group-id "mhuebert"
  :artifact-id "deps-library"
- :scm-url "https://github.com/mhuebert/deps-library"}
+ :scm-url "https://github.com/mhuebert/deps-library"
+
+ ;; see deps-library.release/default-opts
+
+ }

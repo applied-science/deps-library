@@ -7,11 +7,14 @@
             [garamond.git :as git]
             [garamond.pom :as pom]
             [taoensso.timbre :as timbre]
-            [hf.depstar.jar :as jar]))
+            [hf.depstar.uberjar :as uberjar]))
 
-(def default-opts
-  {:jar-dir "target"
-   :jar-name "project.jar"
+(defn default-opts []
+  {:jar/path "target/project.jar"
+   :jar/type :thin
+
+   :version (:version (git/current-status))
+
    :repository {"clojars" {:url "https://clojars.org/repo"
                            :username (System/getenv "CLOJARS_USERNAME")
                            :password (System/getenv "CLOJARS_PASSWORD")}}})
@@ -23,34 +26,31 @@
    "--artifact-id" artifact-id
    "--scm-url" scm-url])
 
-(defn jar [{:keys [jar-dir
-                   jar-name]} & args]
-  (jar/-main (str jar-dir "/" jar-name))
-  #_(apply skinny/-main (concat args ["--no-libs" "--project-path" (str jar-dir "/" jar-name)])))
-
-(defn pom [opts & args]
-  (apply garamond/-main (concat (garamond-args opts) ["--pom"] args)))
-
 (defn tag [opts & args]
-  (apply garamond/-main (concat (garamond-args opts) ["--tag"] args)))
+  (apply garamond/-main (concat (garamond-args opts)
+                                (:garamond-tag-args opts)
+                                ["--tag"] args)))
 
 (defn -main [& [command & args]]
-  (let [{:as opts
-         :keys [jar-dir
-                jar-name]} (-> (io/file "release.edn")
-                               (slurp)
-                               (edn/read-string)
-                               (->> (merge default-opts)))]
+  (let [opts (-> (io/file "release.edn")
+                 (slurp)
+                 (edn/read-string)
+                 (->> (merge (default-opts))))
+
+        ;; commands
+        pom #(pom/generate! (:version opts) opts)
+        jar #(uberjar/uber-main {:dest (:jar/path opts) :jar (:jar/type opts)}
+                                (:depstar/uber-main opts []))
+        deploy #(deps-deploy/-main "deploy" (:jar/path opts))]
     (case command
+      "tag" (apply tag opts (or (seq args) ["patch"]))
       "build-deploy" (do
                        (timbre/set-level! :warn)
-                       (pom/generate! (:version (git/current-status)) opts)
-                       (jar opts)
-                       (sh/sh "cp" "pom.xml" jar-dir)
-                       (apply deps-deploy/-main ["deploy" (str jar-dir "/" jar-name)])
-                       (System/exit 0))
-      "jar" (apply jar opts args)
-      "pom" (apply pom opts args)
-      "tag" (apply tag opts args)
-      "deploy" (apply deps-deploy/-main (concat ["deploy"] args [(str jar-dir "/" jar-name)]))
-      nil (-main "build-deploy"))))
+                       (pom)
+                       (jar)
+                       (deploy))
+      "pom" (pom)
+      "jar" (jar)
+      "deploy" (deploy)
+      nil (-main "build-deploy"))
+    (System/exit 0)))
