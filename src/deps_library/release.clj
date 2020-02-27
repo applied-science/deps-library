@@ -62,7 +62,7 @@
     (case command
       ("patch"
         "minor"
-        "major") (do (tag (conj (garamond-args opts) "patch"))
+        "major") (do (tag (conj (garamond-args opts) command))
                      (-main "release"))
       "tag" (tag (conj (garamond-args opts) (or (first args) "patch")))
       "release" (do
