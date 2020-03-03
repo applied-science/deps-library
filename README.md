@@ -54,7 +54,7 @@ git tag v0.1.0
 Release a new version (tag + pom + jar + deploy):
 
 ```sh
-clj -A:release patch # patch, minor, or major
+clj -A:release --patch # patch, minor, or major
 ```
 
 That's it.
@@ -68,7 +68,7 @@ clj -A:release
 To just tag a new version:
 
 ```sh
-clj -A:release tag patch # patch, minor, or major
+clj -A:release tag --patch # patch, minor, or major
 ```
 
 ## Rationale
