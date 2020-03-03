@@ -1,77 +1,136 @@
 (ns deps-library.release
   (:require [clojure.edn :as edn]
+            [clojure.tools.cli :as cli]
             [clojure.java.io :as io]
             [clojure.java.shell :as sh]
             [deps-deploy.deps-deploy :as deps-deploy]
-            [garamond.main :as garamond]
             [garamond.git :as git]
             [garamond.pom :as pom]
             [garamond.version :as v]
             [garamond.util :refer [exit]]
-            [taoensso.timbre :as timbre]
-            [hf.depstar.uberjar :as uberjar]))
+            [hf.depstar.uberjar :as uberjar]
+            [clojure.string :as str]
+            [taoensso.timbre :as timbre]))
 
 (defn default-opts []
-  {:jar/path "target/project.jar"
-   :jar/type :thin
+  (let [{:as status :keys [version prefix]} (git/current-status)]
+    {:jar/path "target/project.jar"
+     :jar/type :thin
+     :git/status status
+     :version version
+     :prefix prefix
+     :repository {"clojars" {:url "https://clojars.org/repo"
+                             :username (System/getenv "CLOJARS_USERNAME")
+                             :password (System/getenv "CLOJARS_PASSWORD")}}}))
 
-   :version (:version (git/current-status))
+(defn parse-version [version prefix]
+  (-> version
+      (str/replace-first prefix "")
+      (v/parse)))
 
-   :repository {"clojars" {:url "https://clojars.org/repo"
-                           :username (System/getenv "CLOJARS_USERNAME")
-                           :password (System/getenv "CLOJARS_PASSWORD")}}})
+(defn tag [{:as options :keys [version git/status]}]
+  (let [tag (v/to-string version options)]
+    (println (str "TAG... " tag))
+    (if (-> status :git :dirty?)
+      (let [msg "Current repository is dirty, will not create a tag. Please commit your changes and retry."]
+        (if (:dry-run options)
+          (println (str " - [ERROR] " msg))
+          (throw (ex-info msg options))))
+      (when-not (:dry-run options)
+        (try (git/tag! version options status)
+             (catch Exception e
+               (println :tag-error (ex-data e))
+               (case (:code (ex-data e))
+                 128 (println (str " - tag already exists (" tag "), continuing"))
+                 (throw e)))))))
+  options)
 
-(defn garamond-args [{:keys [group-id
-                             artifact-id
-                             scm-url]}]
-  ["--group-id" group-id
-   "--artifact-id" artifact-id
-   "--scm-url" scm-url])
+(defn pom [{:as options :keys [version]}]
+  (println (str "POM... " (str (:group-id options) "/" (:artifact-id options)
+                               " {:mvn/version \"" (:version options) "\"}")))
+  (when-not (:dry-run options)
+    (pom/generate! version options))
+  options)
 
-(defn tag [args]
-  (let [{:keys [incr-type options exit-message ok?]} (garamond/validate-args args)
-        status (git/current-status)
-        opts (assoc options :prefix (or (:prefix options) (:prefix status) "v"))
-        new-version (cond-> (:version status)
-                            incr-type (v/increment incr-type))]
+(defn jar [{:as options :keys [jar/path jar/type]}]
+  (println (str "JAR... " path " (" (name type) ")"))
+  (when-not (:dry-run options)
+    (uberjar/uber-main {:dest path :jar type}
+                       (:depstar/uber-main options)))
+  options)
 
-    (cond exit-message
-          (exit (if ok? 0 1) exit-message)
+(defn deploy [{:as options :keys [jar/path]}]
+  (println (str "DEPLOY... " (-> options :repository ffirst)))
+  (when-not (:dry-run options)
+    (deps-deploy/-main "deploy" path))
+  options)
 
-          (and (:tag opts) (-> status :git :dirty?))
-          (exit 1 "Current repository is dirty, will not create a tag. Please commit your changes and retry."))
+(def cmd-opts
+  [["-v" "--version VERSION" "Specify a custom version to tag/publish"
+    :parse-fn v/parse]
+   ["-i" "--incr INCREMENT" "Specify how to increment the current version"]
+   [nil "--patch" "Specifies patch increment"]
+   [nil "--minor" "Specifies minor increment"]
+   [nil "--major" "Specifies major increment"]
+   [nil "--prefix" "Specifies version prefix"
+    :default "v"]
+   [nil "--dry-run" "Print expected actions, avoiding any side effects"]])
 
-    (git/tag! new-version opts status)
+(defn main [& [command & args]]
+  (let [cli-opts (:options (cli/parse-opts args cmd-opts))
+        file-opts (-> (io/file "release.edn")
+                      (slurp)
+                      (edn/read-string))
+        options (merge (default-opts)
+                       file-opts
+                       cli-opts)
+        incr-type (cond (:incr options) (keyword (:incr options))
+                        (:patch options) :patch
+                        (:minor options) :minor
+                        (:major options) :major)
+        options (-> options
+                    (update :prefix #(or % "v"))
+                    (update :version #(cond-> %
+                                              (string? %) (parse-version (:prefix options))
+                                              incr-type (v/increment incr-type))))]
+    (when (and (:version cli-opts) incr-type)
+      (throw (ex-info
+               (str "Cannot specify both a version (" (:version options)
+                    ") and increment (" incr-type ")") options)))
+    (when (:dry-run options) (println "DRY RUN"))
+    (timbre/set-level! :warn)
 
-    (timbre/infof "Created new git tag %s from %s increment of %s"
-                  (str (:prefix opts) new-version)
-                  (name incr-type)
-                  (:current status))))
-
-(defn -main [& [command & args]]
-  (let [opts (-> (io/file "release.edn")
-                 (slurp)
-                 (edn/read-string)
-                 (->> (merge (default-opts))))
-
-        ;; commands
-        pom #(pom/generate! (:version opts) opts)
-        jar #(uberjar/uber-main {:dest (:jar/path opts) :jar (:jar/type opts)}
-                                (:depstar/uber-main opts []))
-        deploy #(deps-deploy/-main "deploy" (:jar/path opts))]
     (case command
-      ("patch"
-        "minor"
-        "major") (do (tag (conj (garamond-args opts) command))
-                     (-main "release"))
-      "tag" (tag (conj (garamond-args opts) (or (first args) "patch")))
-      "release" (do
-                  (timbre/set-level! :warn)
-                  (pom)
-                  (jar)
-                  (deploy))
-      "pom" (pom)
-      "jar" (jar)
-      "deploy" (deploy)
-      nil (-main "release"))
-    (System/exit 0)))
+      "tag" (tag options)
+      "release" (-> options
+                    (tag)
+                    (pom)
+                    (jar)
+                    (deploy))
+      "pom" (pom options)
+      "jar" (jar options)
+      "deploy" (deploy options)
+      (apply main "release" (cons command args)))))
+
+(defn -main [& args]
+  (apply main args)
+  (System/exit 0))
+
+;; Examples
+;;
+;; TAG
+;;
+;; clj -A:release tag                 # current version
+;;
+;; clj -A:release tag --patch         # incremented version
+;; clj -A:release tag --minor
+;; clj -A:release tag --major
+;;
+;; clj -A:release tag -v 0.1.2-alpha  # force version
+;;
+;; RELEASE
+;;
+;; clj -A:release                     # current version
+;; clj -A:release --patch             # incremented version
+;; clj -A:release -v 0.1.2            # force version
+
