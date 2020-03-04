@@ -37,7 +37,8 @@ Add a `:release` alias to your `deps.edn` as follows:
    :main-opts ["-m" "deps-library.release"]}}
 ```
 
-Make sure `CLOJARS_USERNAME` and `CLOJARS_PASSWORD` environment variables are set.
+Make sure `CLOJARS_USERNAME` and `CLOJARS_PASSWORD` environment variables are set
+(unless you are passing in `--clojars-username` and `--clojars-password` directly).
 For example, add the following to your `~/.bashrc` or `~/.zshrc` or equivalent:
 
 ```sh
@@ -73,13 +74,46 @@ clj -A:release tag --patch # patch, minor, or major
 
 ## Rationale
 
-In my experience, [tools.deps](https://github.com/clojure/tools.deps.alpha) has been a big step
-forward for Clojure dependency handling. In particular, "git deps" make it easy to consume small
-libraries without any extra effort. However, for production code we often want to depend only on
-pinned versions that are stored on reliable, public, immutable repositories like Clojars
-rather than rely on GitHub repositories, which are more easily moved/deleted.
+[tools.deps](https://github.com/clojure/tools.deps.alpha) brought "git deps" to Clojure, making it
+easy to consume small libraries without any extra effort. However, for production code we often want
+to depend only on pinned versions that are stored on reliable, public, immutable repositories like
+Clojars rather than rely on GitHub repositories, which are more easily moved/deleted.
 
 There are four distinct steps in the release process (tag, pom, jar, deploy). In isolation, each step
 is already adequately covered by a number of different tools. However, tying them all together is
 enough of a pain (~one page of code, understanding & configuring each tool) that it discourages versioned
 releases of small libraries. `deps-library` should make the process relatively painless.
+
+## Versioning
+
+By default (following the lead of [garamond](https://github.com/workframers/garamond)), versions are managed
+via git tags and are not stored in source code. This means we can release new versions without making any
+extra commits to update version numbers. Versions created this way can be easily browsed on GitHub
+(be sure to push with `--follow-tags`) and major CI services are easily configured to run workflows triggered
+by tagged commits.
+
+You can also manage versions yourself, by keeping a `:version` key in your `release.edn` file (or
+passing in a `--version` CLI option).
+
+## More options
+
+The `release.edn` file itself is optional - all config can be also be passed in via the command line:
+
+```
+  -v, --version VERSION                                          Specify a version to tag/publish (ignores git tags altogether)
+  -i, --incr INCREMENT                                           Increment the current version
+      --prefix PREFIX                      v                     Version prefix
+      --patch                                                    Increment patch version
+      --minor                                                    Increment minor version
+      --major                                                    Increment major version
+      --config CONFIG                      release.edn           Path to EDN options file
+      --group-id GROUP-ID
+      --artifact-id ARTIFACT-ID
+      --scm-url SCM-URL                                          The source control management URL (eg. github url)
+      --clojars-username CLOJARS-USERNAME  environment variable  Your Clojars username
+      --clojars-password CLOJARS-PASSWORD  environment variable  Your Clojars password
+      --dry-run                                                  Print expected actions, avoiding any side effects
+  -h, --help                                                     Print CLI options
+
+```
+

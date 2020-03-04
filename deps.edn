@@ -4,4 +4,9 @@
         deps-deploy {:mvn/version "0.0.9"}}
  :aliases
  {:release
-  {:main-opts ["-m" "deps-library.release"]}}}
+  {:main-opts ["-m" "deps-library.release"
+               ;; options can also be passed in here:
+               ; "--artifact-id" "mhuebert"
+               ; "--group-id" "deps-library"
+               ; "--scm-url" "https://github.com/mhuebert/deps-library"
+               ]}}}
