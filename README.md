@@ -1,6 +1,6 @@
 # deps-library
 
-![Version Badge](https://img.shields.io/clojars/v/deps-library)
+![Version Badge](https://img.shields.io/clojars/v/appliedscience/deps-library)
 
 To publish a small Clojure library to Clojars should be a simple thing.
 
