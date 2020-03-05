@@ -117,3 +117,4 @@ The `release.edn` file itself is optional - all config can be also be passed in 
   -h, --help                                                     Print CLI options
 ```
 
+All command-line args are also valid keys for inclusion in `release.edn` (except `--config` for obvious reasons).
