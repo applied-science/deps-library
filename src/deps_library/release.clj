@@ -41,18 +41,13 @@
 (defn tag [{:as options :keys [version git/status]}]
   (let [tag (v/to-string version options)]
     (println (str "TAG... " tag))
-    (if (-> status :git :dirty?)
-      (let [msg "Current repository is dirty, will not create a tag. Please commit your changes and retry."]
-        (if (:dry-run options)
-          (println (str " - [ERROR] " msg))
-          (fail! msg options)))
-      (when-not (:dry-run options)
-        (try (git/tag! version options status)
-             (catch Exception e
-               (println :tag-error (ex-data e))
-               (case (:code (ex-data e))
-                 128 (println (str " - tag already exists (" tag "), continuing"))
-                 (throw e)))))))
+    (when-not (:dry-run options)
+      (try (git/tag! version options status)
+           (catch Exception e
+             (println :tag-error (ex-data e))
+             (case (:code (ex-data e))
+               128 (println (str " - tag already exists (" tag "), continuing"))
+               (throw e))))))
   options)
 
 (defn pom [{:as options :keys [version]}]
@@ -76,8 +71,10 @@
   options)
 
 (def cmd-opts
-  [["-v" "--version VERSION" "Specify a version to tag/publish (ignores git tags altogether)"]
+  [["-v" "--version VERSION" "Specify a fixed version"]
    ["-i" "--incr INCREMENT" "Increment the current version"]
+   [nil "--skip-tag" "Do not create a git tag for this version"
+    :default false]
    [nil "--prefix PREFIX" "Version prefix"
     :default "v"]
    [nil "--patch" "Increment patch version"]
@@ -126,7 +123,11 @@
 
                       (and incr-type (or (:version cli-options) (:version file-options)))
                       (format "Cannot increment a version specified via CLI or file (%s - %s)"
-                              (:version options) incr-type))
+                              (:version options) incr-type)
+
+                      (and (-> options :git/status :git :dirty?)
+                           (not (:dry-run options)))
+                      "Current repository has uncommitted work. Please commit your changes and retry.")
                 (fail! options))
 
         (when (:dry-run options) (println "DRY RUN"))
@@ -136,7 +137,7 @@
         (case (first args)
           "tag" (tag options)
           "release" (-> options
-                        (tag)
+                        (cond-> (not (:skip-tag options)) (tag))
                         (pom)
                         (jar)
                         (deploy))

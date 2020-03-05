@@ -100,8 +100,9 @@ passing in a `--version` CLI option).
 The `release.edn` file itself is optional - all config can be also be passed in via the command line:
 
 ```
-  -v, --version VERSION                                          Specify a version to tag/publish (ignores git tags altogether)
+  -v, --version VERSION                                          Specify a fixed version
   -i, --incr INCREMENT                                           Increment the current version
+      --skip-tag                                                 Do not create a git tag for this version
       --prefix PREFIX                      v                     Version prefix
       --patch                                                    Increment patch version
       --minor                                                    Increment minor version
@@ -114,6 +115,5 @@ The `release.edn` file itself is optional - all config can be also be passed in 
       --clojars-password CLOJARS-PASSWORD  environment variable  Your Clojars password
       --dry-run                                                  Print expected actions, avoiding any side effects
   -h, --help                                                     Print CLI options
-
 ```
 
