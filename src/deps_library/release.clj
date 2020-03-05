@@ -11,6 +11,19 @@
             [clojure.string :as str]
             [taoensso.timbre :as timbre]))
 
+(defn default-options [{:as cli-options
+                        :keys [clojars-username clojars-password]}]
+  (let [{:as status :keys [version prefix]} (git/current-status)]
+    {:jar/path "target/project.jar"
+     :jar/type :thin
+     :git/status status
+     :version version
+     :prefix (or prefix "v")
+     :skip-tag false
+     :repository {"clojars" {:url "https://clojars.org/repo"
+                             :username (or clojars-username (System/getenv "CLOJARS_USERNAME"))
+                             :password (or clojars-password (System/getenv "CLOJARS_PASSWORD"))}}}))
+
 (defn sanitize-options
   "Removes sensitive details from options (for logging)"
   [options]
@@ -21,17 +34,6 @@
 
 (defn fail! [message options]
   (throw (ex-info message (sanitize-options options))))
-
-(defn default-options [{:keys [clojars-username clojars-password]}]
-  (let [{:as status :keys [version prefix]} (git/current-status)]
-    {:jar/path "target/project.jar"
-     :jar/type :thin
-     :git/status status
-     :version version
-     :prefix prefix
-     :repository {"clojars" {:url "https://clojars.org/repo"
-                             :username clojars-username
-                             :password clojars-password}}}))
 
 (defn parse-version [version prefix]
   (-> version
@@ -74,9 +76,9 @@
   [["-v" "--version VERSION" "Specify a fixed version"]
    ["-i" "--incr INCREMENT" "Increment the current version"]
    [nil "--skip-tag" "Do not create a git tag for this version"
-    :default false]
+    :default-desc false]
    [nil "--prefix PREFIX" "Version prefix"
-    :default "v"]
+    :default-desc "v"]
    [nil "--patch" "Increment patch version"]
    [nil "--minor" "Increment minor version"]
    [nil "--major" "Increment major version"]
@@ -86,10 +88,8 @@
    [nil "--artifact-id ARTIFACT-ID"]
    [nil "--scm-url SCM-URL" "The source control management URL (eg. github url)"]
    [nil "--clojars-username CLOJARS-USERNAME" "Your Clojars username"
-    :default-fn (constantly (System/getenv "CLOJARS_USERNAME"))
     :default-desc "environment variable"]
    [nil "--clojars-password CLOJARS-PASSWORD" "Your Clojars password"
-    :default-fn (constantly (System/getenv "CLOJARS_PASSWORD"))
     :default-desc "environment variable"]
    [nil "--dry-run" "Print expected actions, avoiding any side effects"]
    ["-h" "--help" "Print CLI options"]])
