@@ -6,7 +6,7 @@
  {:release
   {:main-opts ["-m" "deps-library.release"
                ;; options can also be passed in here:
-               ; "--artifact-id" "mhuebert"
+               ; "--artifact-id" "appliedscience"
                ; "--group-id" "deps-library"
-               ; "--scm-url" "https://github.com/mhuebert/deps-library"
+               ; "--scm-url" "https://github.com/appliedsciencestudio/deps-library"
                ]}}}

@@ -1,6 +1,6 @@
 # deps-library
 
-![Version Badge](https://img.shields.io/clojars/v/mhuebert/deps-library)
+![Version Badge](https://img.shields.io/clojars/v/deps-library)
 
 To publish a small Clojure library to Clojars should be a simple thing.
 
@@ -23,9 +23,9 @@ This library is deployed using itself.
 Create a `release.edn` file in your project root, eg:
 
 ```clj
-{:group-id "mhuebert"
+{:group-id "appliedscience"
  :artifact-id "deps-library"
- :scm-url "https://github.com/mhuebert/deps-library"}
+ :scm-url "https://github.com/appliedsciencestudio/deps-library"}
 ```
 
 Add a `:release` alias to your `deps.edn` as follows:
@@ -33,7 +33,7 @@ Add a `:release` alias to your `deps.edn` as follows:
 ```clj
 :aliases
  {:release
-  {:extra-deps {mhuebert/deps-library {:mvn/version "VERSION"}}
+  {:extra-deps {appliedscience/deps-library {:mvn/version "VERSION"}}
    :main-opts ["-m" "deps-library.release"]}}
 ```
 

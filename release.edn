@@ -1,6 +1,6 @@
-{:group-id "mhuebert"
+{:group-id "appliedscience"
  :artifact-id "deps-library"
- :scm-url "https://github.com/mhuebert/deps-library"
+ :scm-url "https://github.com/appliedsciencestudio/deps-library"
 
  ;; see deps-library.release/default-opts
 
