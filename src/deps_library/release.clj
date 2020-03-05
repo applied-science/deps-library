@@ -77,7 +77,7 @@
    ["-i" "--incr INCREMENT" "Increment the current version"]
    [nil "--skip-tag" "Do not create a git tag for this version"
     :default-desc false]
-   [nil "--prefix PREFIX" "Version prefix"
+   [nil "--prefix PREFIX" "Version prefix for git tag"
     :default-desc "v"]
    [nil "--patch" "Increment patch version"]
    [nil "--minor" "Increment minor version"]
