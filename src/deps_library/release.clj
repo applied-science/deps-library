@@ -42,7 +42,7 @@
 
 (defn tag [{:as options :keys [version git/status]}]
   (let [tag (v/to-string version options)]
-    (println (str "TAG... " tag))
+    (println (str "Tag... " tag))
     (when-not (:dry-run options)
       (try (git/tag! version options status)
            (catch Exception e
@@ -67,9 +67,15 @@
   options)
 
 (defn deploy [{:as options :keys [jar/path]}]
-  (println (str "DEPLOY... " (-> options sanitize-options :repository ffirst)))
+  (println (str "Deploy... " (-> options sanitize-options :repository ffirst)))
   (when-not (:dry-run options)
     (deps-deploy/-main "deploy" path))
+  options)
+
+(defn install [{:as options :keys [jar/path]}]
+  (println (str "Install... "))
+  (when-not (:dry-run options)
+    (deps-deploy/-main "install" path))
   options)
 
 (def cmd-opts
@@ -113,7 +119,8 @@
                     (update :prefix #(or % "v"))
                     (update :version #(cond-> %
                                               (string? %) (parse-version (:prefix options))
-                                              incr-type (v/increment incr-type))))]
+                                              incr-type (v/increment incr-type))))
+        COMMAND (first args)]
     (if (:help options)
       (println summary)
       (do
@@ -126,7 +133,9 @@
                               (:version options) incr-type)
 
                       (and (-> options :git/status :git :dirty?)
-                           (not (:dry-run options)))
+                           (not (:dry-run options))
+                           (not (#{"install"
+                                   "version"} COMMAND)))
                       "Current repository has uncommitted work. Please commit your changes and retry.")
                 (fail! options))
 
@@ -134,7 +143,9 @@
 
         (timbre/set-level! :warn)
 
-        (case (first args)
+        (case COMMAND
+          "version" (println (v/to-string (:version options) options)
+                             (str "(" (or (some-> incr-type name) "no change") ")"))
           "tag" (tag options)
           "release" (-> options
                         (cond-> (not (:skip-tag options)) (tag))
@@ -144,6 +155,10 @@
           "pom" (pom options)
           "jar" (jar options)
           "deploy" (deploy options)
+          "install" (-> options
+                        (pom)
+                        (jar)
+                        (install))
           (apply main "release" args))))))
 
 (defn -main [& args]

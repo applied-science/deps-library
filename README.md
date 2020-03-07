@@ -95,7 +95,21 @@ by tagged commits.
 You can also manage versions yourself, by keeping a `:version` key in your `release.edn` file (or
 passing in a `--version` CLI option).
 
-## More options
+## CLI
+
+### Commands
+
+eg. `clj -A:release <command> <...options>`
+
+- _default_ (no command) runs tag + pom + jar + deploy
+- **tag** - creates git tag. if an increment is specified, increments the version first.
+- **pom** - creates pom.xml file
+- **jar** - creates thin jar
+- **deploy** - deploys to clojars
+- **install** - installs to local maven repo after running tag + pom + jar
+- **version** - prints version (according to given options/environment)
+
+### Options
 
 The `release.edn` file itself is optional - all config can be also be passed in via the command line:
 
@@ -103,7 +117,7 @@ The `release.edn` file itself is optional - all config can be also be passed in 
   -v, --version VERSION                                          Specify a fixed version
   -i, --incr INCREMENT                                           Increment the current version
       --skip-tag                                                 Do not create a git tag for this version
-      --prefix PREFIX                      v                     Version prefix
+      --prefix PREFIX                      v                     Version prefix for git tag
       --patch                                                    Increment patch version
       --minor                                                    Increment minor version
       --major                                                    Increment major version
@@ -115,6 +129,7 @@ The `release.edn` file itself is optional - all config can be also be passed in 
       --clojars-password CLOJARS-PASSWORD  environment variable  Your Clojars password
       --dry-run                                                  Print expected actions, avoiding any side effects
   -h, --help                                                     Print CLI options
+
 ```
 
 All command-line args are also valid keys for inclusion in `release.edn` (except `--config` for obvious reasons).
