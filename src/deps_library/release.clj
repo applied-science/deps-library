@@ -13,7 +13,8 @@
 
 (defn default-options [{:as cli-options
                         :keys [clojars-username clojars-password]}]
-  (let [{:as status :keys [version prefix]} (git/current-status)]
+  (let [{:as status :keys [version prefix]} (try (git/current-status)
+                                                 (catch java.lang.NullPointerException e nil))]
     {:jar/path "target/project.jar"
      :jar/type :thin
      :git/status status
@@ -33,7 +34,7 @@
         (update-in [:repository "clojars"] assoc-if :password "XXXX"))))
 
 (defn fail! [message options]
-  (throw (ex-info message (sanitize-options options))))
+  (throw (ex-info (str "\n" message) (sanitize-options options))))
 
 (defn parse-version [version prefix]
   (-> version
@@ -46,7 +47,6 @@
     (when-not (:dry-run options)
       (try (git/tag! version options status)
            (catch Exception e
-             (println :tag-error (ex-data e))
              (case (:code (ex-data e))
                128 (println (str " - tag already exists (" tag "), continuing"))
                (throw e))))))
@@ -120,17 +120,24 @@
                     (update :version #(cond-> %
                                               (string? %) (parse-version (:prefix options))
                                               incr-type (v/increment incr-type))))
+        force-static-version (or (:version cli-options)
+                                 (:version file-options))
         COMMAND (first args)]
     (if (:help options)
       (println summary)
       (do
         (some-> (cond (nil? (:version options))
-                      (format "Invalid version: %s" (or (:version cli-options)
-                                                        (:version file-options)))
+                      (if force-static-version
+                        (format "Invalid version: %s" force-static-version)
+                        (format (str "No version specified. "
+                                     "Add a starting tag (eg. git tag v0.1.0), "
+                                     "pass a --version argument, or include a :version "
+                                     "in %s.")
+                                (:config cli-options)))
 
-                      (and incr-type (or (:version cli-options) (:version file-options)))
+                      (and incr-type force-static-version)
                       (format "Cannot increment a version specified via CLI or file (%s - %s)"
-                              (:version options) incr-type)
+                              force-static-version incr-type)
 
                       (and (-> options :git/status :git :dirty?)
                            (not (:dry-run options))
