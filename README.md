@@ -86,14 +86,14 @@ releases of small libraries. `deps-library` should make the process relatively p
 
 ## Versioning
 
-By default (following the lead of [garamond](https://github.com/workframers/garamond)), versions are managed
+By default (via [garamond](https://github.com/workframers/garamond)), versions are managed
 via git tags and are not stored in source code. This means we can release new versions without making any
 extra commits to update version numbers. Versions created this way can be easily browsed on GitHub
 (be sure to push with `--follow-tags`) and major CI services are easily configured to run workflows triggered
 by tagged commits.
 
-You can also manage versions yourself, by keeping a `:version` key in your `release.edn` file (or
-passing in a `--version` CLI option).
+Alternatively, you can pass a `--version` argument at the command line, or add a `:version` to your
+`release.edn` file (in which case you must handle incrementing the version yourself).
 
 ## CLI
 
@@ -101,13 +101,18 @@ passing in a `--version` CLI option).
 
 eg. `clj -A:release <command> <...options>`
 
+Core flow:
+
 - _default_ (no command) runs tag + pom + jar + deploy
 - **tag** - creates git tag. if an increment is specified, increments the version first.
 - **pom** - creates pom.xml file
 - **jar** - creates thin jar
 - **deploy** - deploys to clojars
-- **install** - installs to local maven repo after running tag + pom + jar
-- **version** - prints version (according to given options/environment)
+
+Other commands:
+
+- **install** - install version to local maven repo (runs tag + pom + jar)
+- **version** - prints version according to given options/environment
 
 ### Options
 
