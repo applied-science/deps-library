@@ -1,6 +1,6 @@
-{:group-id "appliedscience"
+{:group-id "applied-science"
  :artifact-id "deps-library"
- :scm-url "https://github.com/appliedsciencestudio/deps-library"
+ :scm-url "https://github.com/applied-science/deps-library"
 
  ;; see deps-library.release/default-opts
 

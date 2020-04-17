@@ -1,4 +1,4 @@
-(ns deps-library.release
+(ns applied-science.deps-library
   (:require [clojure.edn :as edn]
             [clojure.tools.cli :as cli]
             [clojure.java.io :as io]

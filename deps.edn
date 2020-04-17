@@ -4,9 +4,9 @@
         deps-deploy {:mvn/version "0.0.9"}}
  :aliases
  {:release
-  {:main-opts ["-m" "deps-library.release"
+  {:main-opts ["-m" "applied-science.deps-library"
                ;; options can also be passed in here:
-               ; "--artifact-id" "appliedscience"
+               ; "--artifact-id" "applied-science"
                ; "--group-id" "deps-library"
-               ; "--scm-url" "https://github.com/appliedsciencestudio/deps-library"
+               ; "--scm-url" "https://github.com/applied-science/deps-library"
                ]}}}
