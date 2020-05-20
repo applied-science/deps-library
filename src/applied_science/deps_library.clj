@@ -142,7 +142,8 @@
                       (and (-> options :git/status :git :dirty?)
                            (not (:dry-run options))
                            (not (#{"install"
-                                   "version"} COMMAND)))
+                                   "version"
+                                   "jar"} COMMAND)))
                       "Current repository has uncommitted work. Please commit your changes and retry.")
                 (fail! options))
 
