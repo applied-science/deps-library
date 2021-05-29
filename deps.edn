@@ -1,7 +1,9 @@
 {:paths ["src"]
- :deps {seancorfield/depstar {:mvn/version "0.5.2"}
-        com.workframe/garamond {:mvn/version "0.4.0"}
-        deps-deploy {:mvn/version "0.0.9"}}
+ :deps {seancorfield/depstar {:mvn/version "2.0.216"}
+        com.workframe/garamond {;:mvn/version "0.4.0"
+                                :git/url "https://github.com/workframers/garamond"
+                                :sha "a5077bc99d5f6e303735505068d5363d3b2cc00c"}
+        deps-deploy/deps-deploy {:mvn/version "0.0.12"}}
  :aliases
  {:release
   {:main-opts ["-m" "applied-science.deps-library"
