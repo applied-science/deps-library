@@ -8,6 +8,7 @@
             [garamond.version :as v]
             [garamond.util :refer [exit]]
             [hf.depstar.uberjar :as uberjar]
+            [hf.depstar :as depstar]
             [clojure.string :as str]
             [taoensso.timbre :as timbre]))
 
@@ -62,8 +63,7 @@
 (defn jar [{:as options :keys [jar/path jar/type]}]
   (println (str "JAR... " path " (" (name type) ")"))
   (when-not (:dry-run options)
-    (uberjar/uber-main {:dest path :jar type}
-                       (:depstar/uber-main options)))
+    (depstar/jar {:jar path}))
   options)
 
 (defn deploy [{:as options :keys [jar/path]}]
